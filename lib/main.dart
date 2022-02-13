@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:painter/painter.dart';
+
+//import 'package:painter/painter.dart';
+import 'muggu.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,12 +26,13 @@ class Rangulu extends StatefulWidget {
 
 class _RanguluState extends State<Rangulu> {
   List<Container> stackList = [];
-  PainterController _controller = newController();
+  PainterController controller = newController();
 
   static PainterController newController() {
     PainterController controller = PainterController();
     controller.thickness = 5.0;
     controller.backgroundColor = Colors.green;
+    controller.drawColor = Colors.red;
     return controller;
   }
 
@@ -46,7 +49,7 @@ class _RanguluState extends State<Rangulu> {
             child: Stack(
               children: [
                     Container(
-                      child: Painter(_controller),
+                      child: Muggu(controller),
                     )
                   ] +
                   stackList,
@@ -57,7 +60,7 @@ class _RanguluState extends State<Rangulu> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               FloatingActionButton(
-                  child: const Icon(Icons.clear), onPressed: _controller.clear),
+                  child: const Icon(Icons.clear), onPressed: controller.clear),
               FloatingActionButton(
                   child: const Icon(Icons.add),
                   onPressed: () {
@@ -77,9 +80,32 @@ class _RanguluState extends State<Rangulu> {
   }
 
   Container stackEle() {
-    _controller = newController();
+    controller = newController();
     return Container(
-      child: Painter(_controller),
+      child: Muggu(controller),
     );
+  }
+}
+
+class LowIntesPaint extends CustomPainter {
+  PainterController pc;
+
+  LowIntesPaint(this.pc);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.saveLayer(Offset.zero & size, Paint());
+    for (MapEntry<Path, Paint> path in pc.pathHistory.paths) {
+      Paint p = path.value;
+      canvas.drawPath(path.key, p);
+    }
+    canvas.drawRect(new Rect.fromLTWH(0.0, 0.0, size.width, size.height),
+        pc.pathHistory.paths.first.value);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
